@@ -1,0 +1,14 @@
+[package]
+name = "actix-gcd"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web="1.0.9"
+# Crates can have optional features: parts of the interface or implementation that not all users need, but that
+# nonetheless make sense to include in that crate. The 'serde' crate offers a wonderfully terse way to handle data from
+# web forms, but according to serde's documentation, it is only available if we select the crate's derive feature, so
+# we've requested it here.
+serde = {version="1.0", features=["derive"]}

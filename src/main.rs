@@ -72,3 +72,7 @@ fn test_gcd() {
 
     assert_eq!(gcd(2*3*5*11*17, 3*7*11*13*19), 3*11);
 }
+
+/* A Rust package, whether a library or an executable, is called a `crate`; Cargo and crates.io both
+derive their names from this term.
+ */
