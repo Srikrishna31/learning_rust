@@ -1,7 +1,41 @@
-fn main() {
-    println!("Hello, world!");
+// A trait is a collection of methods that types can implement. Any type that implements the
+// FromStr trait has a from_str method that tries to parse a value of they type from a string.
+use std::str::FromStr;
+//The second use declaration brings in the std::env module, which provides several useful functions
+// and types for interacting with the execution environment, including the args function, which gives
+// access to the program's command-line arguments.
+use std::env;
 
-    println!("Gcd of 5 and 7 is {}", gcd(5, 7));
+fn main() {
+    //Rust infers the type of Vec to be Vec<u64> since we push a u64, and also pass the vector's
+    //elements to gcd function.
+    let mut numbers = Vec::new(); //Vec is equivalent to C++'s Vector, Python's list
+
+    // The args function returns an `iterator`, a value that produces each argument on demand, and
+    // indicates when we're done.
+    for arg in env::args().skip(1) {
+        numbers.push(u64::from_str(&arg)
+            //from_str returns a Result type which can be Ok(v) or Err(e) type.
+                         .expect("error parsing argument"));
+    }
+
+    if numbers.len() == 0 {
+        //This macro writes out to standard error output stream.
+        eprintln!("Usage: gcd NUMBER ...");
+        std::process::exit(1);
+    }
+
+    let mut d = numbers[0];
+    //When we iterate we want to tell Rust that `ownership` of the vector should remain with numbers
+    //We are merely `borrowing` its elements for the loop. The & operator in &numbers[1..] borrows a
+    //reference to the vector's elements from the second onward. The for loop iterates over the
+    //referenced elements, letting m borrow each element in succession. The * operator in *m
+    //dereferences m, yielding the value it refers to; this is the next u64 we want to pass to gcd.
+    for m in &numbers[1..] {
+        d = gcd(d, *m);
+    }
+
+    println!("The greatest common divisor of {:?} is {d}", numbers);
 }
 
 //By default, once a variable is initialized, it's value can't be changed, but placing the mut(short
