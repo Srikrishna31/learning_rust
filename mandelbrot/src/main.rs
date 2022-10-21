@@ -44,7 +44,40 @@ fn main() {
 
     // The expression &mut pixels borrows a mutable reference to out pixel buffer, allowing render
     // to fill it with computed grayscale values, even while pixels remains the vector's owner.
-    render(&mut pixels, bounds, upper_left, lower_right);
+    // render(&mut pixels, bounds, upper_left, lower_right);
+
+    let threads = 8;
+    let rows_per_band = bounds.1 / threads + 1;
+
+    {
+        // The buffer's chuks_mut method returns an iterator producing mutable, nonoverlapping slices
+        // of the buffer, each of which encloses rows_per_band * bounds.0 pixels - in other words,
+        // rows_per_band complete rows of pixels.
+        let bands: Vec<&mut [u8]> = pixels.chunks_mut(rows_per_band * bounds.0).collect();
+        //crossbeam::scope calls the closure, passing as the spawner argument a value the closure can
+        //use to create new threads. The crossbeam::scope function waits for all such threads to
+        //finish execution before returning itself.
+        crossbeam::scope(|spawner| {
+            // The into_iter() iterator gives each iteration of the loop body exclusive ownership of
+            // one band, ensuring that only one thread can write to it at a time.
+            for (i, band) in bands.into_iter().enumerate() {
+                let top = rows_per_band * i;
+                let height = band.len() / bounds.0;
+                let band_bounds = (bounds.0, height);
+                let band_upper_left = pixel_to_point(bounds, (0, top), upper_left, lower_right);
+                let band_lower_right = pixel_to_point(bounds, (bounds.0, top + height),
+                                                                  upper_left, lower_right);
+                // The move keyword at the front indicates that this closure takes ownership of the
+                // variables it uses; in particular, only the closure may use the mutable slice band.
+                // The argument list |_| means that the closure takes one argument, which it doesn't
+                //use(another spawner for making nested threads).
+                spawner.spawn(move |_| {
+                    render(band, band_bounds, band_upper_left, band_lower_right);
+                });
+            }
+        }).unwrap();
+    }
+
 
     write_image(&args[1], &pixels, bounds)
         .expect("error writing PNG file");
@@ -88,12 +121,7 @@ fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
             match(T::from_str(&s[..index]), T::from_str(&s[index + 1..])) {
                 (Ok(l), Ok(r)) => Some((l,r)),
                 //The wildcard pattern _ matches anything and ignores its value.
-                (Err(e), _) => {
-                    None
-                }
-                (_, Err(e)) => {
-                    None
-                }
+                _ => None
             }
         }
     }
