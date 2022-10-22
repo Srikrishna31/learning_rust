@@ -1,3 +1,9 @@
 
 [workspace]
-members = ["actix-gcd", "initial", "mandelbrot", "quickreplace"]
+members = [
+    "actix-gcd",
+    "initial",
+    "mandelbrot",
+    "quickreplace",
+    "fundamental-types"
+]
