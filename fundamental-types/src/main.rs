@@ -128,3 +128,142 @@ fn raw_pointers() -> ()
      */
 }
 
+/*
+Rust has three types for representing a sequence of values in memory:
+* The type [T;N] represents an array of N values, each of type T. An array's size is a constant
+determined at compile time and is part of the type; you can't append new elements or shrink an array.
+
+* The type Vec<T>, called a vector of Ts, is a dynamically allocated, growable sequence of values of
+type T. A vector's elements live on the heap, so you can resize vectors at will: push new elements
+onto them, append other vectors to them, delete elements and so on.
+
+* The types &[T] and &mut [T], called a shared slice of Ts and mutable slice of Ts are references to
+a series of elements that are a part of some other value, like an array or vector.
+
+
+Given a value v of any of these three types, the expression v.len() gives the number of elements in
+v, and v[i] refers to the ith element of v. The first element is v[0], and the last element is
+v[v.len() - 1]. Rust checks that i always falls within this range; if it doesn't, the expression
+panics. The length of v may be zero, in which case any attempt to index it will panic. i must be a
+usize value; you can't use any other integer type as an index.
+ */
+
+fn arrays() -> () {
+    let lazy : [u32;6] = [1,2,4,7,11,16];
+    let tax = ["Animalia", "Arthropoda", "Insecta"];
+
+    assert_eq!(lazy[3], 7);
+    assert_eq!(tax.len(),3);
+}
+
+fn vectors() -> () {
+    //The vec! macro is equivalent to calling Vec::new to create a new, empty vector and then pushing
+    //elements onto it.
+    let mut primes = vec![2,3,5,7];
+    assert_eq!(primes.iter().product(), 210);
+
+    primes.push(11);
+    primes.push(13);
+    assert_eq!(primes.iter().product(), 30030);
+
+    //Another possibility is to build a vector from the values produced by an iterator:
+    let v: Vec<i32> = (0..5).collect();
+    assert_eq!(v, [0,1,2,3,4]);
+
+    //A palindrome!
+    let mut palindrome = vec!["a man", "a plan", "a canal", "panama"];
+    palindrome.reverse();
+    assert_eq!(palindrome, vec!["panama", "a canal", "a plan", "a man"]);
+
+
+    /*
+    A Vec<T> consists of three values: a pointer to the heap-allocated buffer for the elements, which
+    is created and owned by Vec<T>; the number of elements that buffer has the capacity to store; and
+    the number it actually contains now. When the buffer has reached its capacity, adding another
+    element to the vector entails allocating a larger buffer, copying the present contents into it.,
+    updading the vector's pionter and capacity to describe the new buffer, and finally freeing the
+    old one.
+     */
+}
+
+fn new_pixel_buffer(rows: usize, cols:usize) -> Vec<u8> {
+
+    vec![0; rows*cols]
+}
+
+
+fn slices() -> () {
+    /*
+    A slice, written [T] without specifying the length, is a region of an array or vector.
+    Since a slice can be any length, slices can't be stored directly in variables or passed as
+    function arguments. Slices are always passed by reference.
+
+    A reference to a slice is a fat pointer: a two-word value comprising a pointer to the slice's
+    first element, and the number of elements in the slice.
+     */
+    let v: Vec<f64> = vec![0.0, 0.707, 1.0, 0.707];
+    let a: [f64; 4] = [0.0, -0.707, -1.0, -0.707];
+
+    let sv = &v;
+    let sa = &a;
+
+    let print = |x:&[f64]| {
+        for elt in n {
+            println!("{elt}");
+        }
+    };
+
+    print(&a);
+    print(&v);
+
+    print(&v[0..2]); //print the first two elements of v
+    print(&a[2..]); //print the elements of a starting with a[2]
+    print(&sv[1..3]); // print v[1] and v[2]
+}
+
+
+fn strings() ->() {
+    // String literals are enclosed in double quotes. They use the same backslash escape sequences
+    // as char literals:
+    let speech = "\"Ouch!\" said the well.\n";
+
+    //If one line of a string ends with a backslash, then the newline character and the leading
+    //white space on the next line are dropped:
+    println!("It was a bright, cold day in April, and \
+            there were four of us-\
+            more or less.");
+
+    //A raw string is tagged with the lowercase letter r. All backslashes and whitespace characters
+    //inside a raw string are included verbatim in the string. No escape sequences are recognized.
+    let default_win_install_path = r"C:\Program Files\Gorillas";
+
+    let pattern = Regex::new(r"\d+(\.\d+)*");
+
+    //Byte strings are a slice of u8 values - that is, bytes-rather than Unicode text:
+    let method = b"GET";
+    assert_eq!(method, &[b'G', b'E', b'T']);
+
+    //Rust strings are sequences of Unicode characters, but they are not stored in memory as arrays
+    //of chars. Instead, they are stored using UTF-8, a variable-width encoding. Each ASCII
+    //characters in a string is stored in one byte. Other characters take up multiple bytes.
+    //A &str (pronounced "stir" or "string slice") is a reference to a run of UTF-8 text owned by
+    //someone else: it "borrows" the text.
+    //A string literal is &str that refers to preallocated text, typically stored in read-only memory
+    //along with the program's machine code.
+    //The type &mut str does exist, but it is not very useful, since almost any operation on UTF-8
+    //can change its overall byte length, and a slice cannot reallocate its referent.
+    //&str is very much like &[T]: a fat pointer to some data. String is analogous to Vec<T>.
+
+    /*
+    The format!() macro works just like println!(), except that it returns a new String instead of
+    writing text to stdout, and it doesn't automatically add a new line at the end:
+     */
+    let a = format!("{}o{:02}'{:02}``N", 24, 5, 23);
+}
+
+fn type_aliases() -> () {
+    //The type keyword can be used like typedef in C++ to declare a new name for an existing type:
+    type Bytes = Vec<u8>;
+
+    let decode = |data: &Bytes| {};
+}
