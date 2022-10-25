@@ -6,5 +6,6 @@ members = [
     "mandelbrot",
     "quickreplace",
     "fundamental-types",
-    "ownership_and_moves"
+    "ownership_and_moves",
+    "references"
 ]
