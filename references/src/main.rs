@@ -121,8 +121,32 @@ fn main() {
                             "a salt cellar".to_string()]);
 
     show(&table);
-
 }
+
+
+/*
+Borrowing References to Arbitrary Expressions
+Rust lets you borrow a reference to the value of any sort of expression at all:
+ */
+fn factorial(n:usize) -> usize {
+    (1..n+1).product();
+}
+
+fn expression_references() -> () {
+    let r = &factorial(6);
+    assert_eq!(r + &1009 , 1729);
+}
+/*
+In situations like this Rust simply creates an anonymous variable to hold the expression's value
+and make the reference point to that. The lifetime of this anonmous variable depends on following:
+
+* If you immediately assign the reference to a variable in a let statement(or make it part of some
+struct or array that is being immediately assigned), then Rust makes the anonymous variable live as
+long as the variable the let initializes.
+
+* Otherwise, the anonymous variable lives to the end of the enclosing statement.
+ */
+
 
 /*
 Reference Safety
@@ -141,5 +165,48 @@ static: Rust's equivalent of a global variable is called a static: it's a value 
 the program starts and lasts until it terminates.
  */
 
+/*
+Lifetime parameters for functions
+For functions accepting references as parameters, an additional lifetime parameter may be specified,
+which lets Rust to reason about reference safety and point out errors:
+fn f<'a>(p: &'a i32) { ... }
+When we write this, we're defining a function that takes a reference to an i32 with any given lifetime
+'a.
+Rust also has the notion of 'static lifetime, which encapuslates the lifetime of a static variable
+reference, which can only be used for storing references to static variables.
 
+In addition, you only need to worry about lifetime parameters when defining functions and types;
+when using them, Rust infers them for you.
 
+Lifetimes in function signatures let Rust assess the relationships between the references you pass to
+function and those the function returns, and they ensure they're being used safely.
+ */
+
+/*
+Structs containing references
+
+Whenever a reference type appears inside another type's definition, you must write out its lifetime.
+Eg:
+struct S {
+    r: &'a i32
+}
+
+Now the S type has a lifetime, just as reference types do. Each value you create of type S gets a
+fresh lifetime 'a, which becomes constrained by how you use the value. The lifetime of any reference
+you store in r had better enclose 'a, and 'a must outlast the lifetime of wherever you store the S.
+
+A type's lifetime parameters always reveal whether it contains references with interesting (that is,
+non-'static) lifetimes and what those lifetimes are.
+For examplef, suppose we have a parsing function that takes a slice of bytes and returns a structure
+holding the results of the parse:
+fn parse_record<'i>(input: &'i [u8]) -> Record<'i> { ... }
+Without looking into the definition of Record type at all, we can tell that, if we receive a Record
+from parse_record, whatever references it contains must point into the input buffer we passed in, and
+nowhere else(except perhaps 'static values).
+
+It's not just references and types like S that have lifetimes. Every type in Rust has a lifetime,
+including i32 and String. Most are simply 'static, meaning that values of those types can live for
+as long as you like; for example a Vec<i32> is self-contained and needn't be dropped before any
+particular variable goes out of scope. But a type like Vec<&'a i32> has a lifetime that must be
+enclosed by 'a: it must be dropped while its referents are still alive.
+ */
