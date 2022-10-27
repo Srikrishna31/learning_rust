@@ -121,4 +121,25 @@ fn main() {
                             "a salt cellar".to_string()]);
 
     show(&table);
+
 }
+
+/*
+Reference Safety
+Rust tries to assign each reference type in your program a 'lifetime' that meets the constraints
+imposed by how it is used. A lifetime is some stretch of your program for which a reference could be
+safe to use: a statement, an expression, the scope of some variable, or the like. Lifetimes are
+entirely figments of Rust's compile-time imagination. At run time, a reference is nothing but an
+address; its lifetime is part of its type and has no run-time representation.
+First rule: The variable's lifetime must contain or enclose that of the reference borrowed from it.
+Second rule: if you store a reference in a variable r, the reference's type must be good for the
+entire lifetime of that variable, from its initialization until its last use.
+ */
+
+/*
+static: Rust's equivalent of a global variable is called a static: it's a value that's created when
+the program starts and lasts until it terminates.
+ */
+
+
+
