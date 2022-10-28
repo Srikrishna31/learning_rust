@@ -8,5 +8,6 @@ members = [
     "fundamental-types",
     "ownership_and_moves",
     "references",
-    "expressions"
+    "expressions",
+    "error_handling"
 ]
