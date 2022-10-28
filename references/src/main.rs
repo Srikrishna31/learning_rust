@@ -96,7 +96,7 @@ fn references_to_references() -> () {
 
     assert!(!std::ptr::eq(rx, ry)); //references to rx and ry are equal, but occupy different addresses.
 
-    assert!(rx == rrx); //error: type mismatch: `&i32` vs `&&i32`
+    //assert!(rx == rrx); //error: type mismatch: `&i32` vs `&&i32`
     assert!(rx == *rrx); //this is okay
 
 
@@ -129,7 +129,7 @@ Borrowing References to Arbitrary Expressions
 Rust lets you borrow a reference to the value of any sort of expression at all:
  */
 fn factorial(n:usize) -> usize {
-    (1..n+1).product();
+    (1..n+1).product()
 }
 
 fn expression_references() -> () {
@@ -209,4 +209,94 @@ including i32 and String. Most are simply 'static, meaning that values of those 
 as long as you like; for example a Vec<i32> is self-contained and needn't be dropped before any
 particular variable goes out of scope. But a type like Vec<&'a i32> has a lifetime that must be
 enclosed by 'a: it must be dropped while its referents are still alive.
+ */
+
+/*
+Sharing vs Mutation
+ */
+fn extend (vec: &mut Vec<f64>, slice: &[f64]) {
+    for elt in slice {
+        vec.push(*elt);
+    }
+}
+
+fn test_extend() {
+    let mut wave = Vec::<f64>::new();
+    let head = vec![0.0, 1.0];
+    let tail = [0.0, -1.0];
+
+    //extend(&mut wave, &wave); //error: cannot borrow 'wave' as immutable because it is also
+    //borrowed as mutable.
+    assert_eq!(wave, vec![0.0, 1.0, 0.0, -1.0,
+                          0.0, 1.0, 0.0, -1.0]);
+}
+
+/*
+* Shared access is read-only access.
+Values borrowed by shared references are read-only. Across the lifetime of a shared reference,
+neither its referent, nor anything reachable from that referent can be changed by anything. There
+exist no live mutable references to anything in that structure, its owner is held read-only, and
+so on.
+
+* Mutable access is exclusive access.
+A value borrowed by a mutable reference is reachable exclusively via that reference. Across the
+lifetime of a mutable reference, there is no other usable path to its referent or to any value
+reachable from there. The only references whose lifetimes may overlap with a mutable reference are
+those you borrow from the mutable reference itself.
+ */
+
+fn sharing_vs_mutation() -> () {
+    {
+        let mut x = 10;
+        let r1 = &x;
+        let r2 = &x; //ok: multiple shared borrows permitted
+        x+=10; //error: cannot assign to 'x', because it is borrowed.
+        let m = &mut x; //error: cannot borrow 'x' as mutable because it is also borrowed as immutable
+
+        println!("{r1}, {r2}, {m}"); //the references are used here, so their lifetimes must last at least this long.
+    }
+
+    {
+        let mut y = 20;
+        let m1 = &mut y;
+        let m2 = &mut y; //error: cannot borrow as mutable more than once.
+        let z = y; //error: cannot use 'y' because it was mutably borrowed.
+
+        println!("{m1}, {m2}, {z}"); //references are used here.
+    }
+
+    //It is okay to reborrow a shared reference from a shared reference.
+    {
+        let mut w = (107, 109);
+        let r = &w;
+        let r0 = &r.0; //ok: reborrowing shared as shared
+        let m1 = &mut r.1;  //error: can't reborrow shared as mutable.
+        println!("{r0}"); //r0 gets used here.
+    }
+
+    //You can reborrow from a mutable reference:
+    {
+        let mut v = (136, 139);
+        let m = &mut v;
+        let m0 = &mut m.0;  //ok: reborrowing mutable from mutable
+        *m0 = 137;
+        let r1 = &m.1;      //ok: reborrowing shared from mutable, and doesn't overlap with m0
+        v.1;    //error: access through other paths still forbidden
+        println!("{r1}");
+    }
+
+    {
+        let mut x = 42;
+        let p = &x;
+        assert_eq!(*p, 42);
+        x += 1; //error: cannot assign to x because it is borrowed
+        assert_eq!(*p, 42);     //if you take out the assignment, this is true.
+    }
+}
+
+/*
+The immiscibility of shared and mutable references really demonstrates its value when writing
+concurrent code. A data race is possible only when some value is both mutable and shared between
+threads - which is exactly what Rust's reference rules eliminate. A concurrent Rust program that
+avoids unsafe code is free of data races by construction.
  */
