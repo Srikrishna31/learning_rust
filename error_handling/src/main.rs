@@ -60,3 +60,56 @@ fn print_error(mut err: &dyn Error) {
         err=source;
     }
 }
+
+
+/*
+Propagating Errors
+Rust has a ? operator that does error propagation:
+let weather = get_weather(hometown)?;
+The behavior of ? depends on whether this function returns a success result or an error result:
+* On success, it unwraps the Result to get the success value inside. The type of weather here is
+not Result<WeatherReport, io::Error> but simply WeatherReport.
+* On error, it immediately returns from the enclosing function, passing the error result up the call
+chain. To ensure that this works, ? can only be used on a Result in functions that have a Result
+return type.
+
+The above operator is a short form for:
+let weather = match get_weather(hometown) {
+    Ok(success_value) => success_value,
+    Err(err) => return Err(err)
+}
+
+? also works similarly with the Option type. In a function that returns Option, you can use ? to
+unwrap a value and return early in case of None.
+ */
+
+#[derive(Debug, Clone)]
+pub struct JsonError {
+    pub message: String,
+    pub line: usize,
+    pub column: usize,
+}
+
+use std::fmt;
+
+impl fmt::Display for JsonError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+
+        write!(f, "{} ({}:{}", self.message, self.line, self.column)
+    }
+}
+
+//Errors should implement the std::error::Error trait, but the default definitions for the Error
+//methods are fine.
+impl std::error::Error for JsonError {}
+
+fn json_error() -> Result<(), JsonError> {
+    let current_line = 0;
+    let current_column = 0;
+
+    Err(JsonError{
+        message: "expected ']' at end of array".to_string(),
+        line: current_line,
+        column: current_column
+    })
+}
