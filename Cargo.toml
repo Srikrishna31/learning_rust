@@ -9,5 +9,6 @@ members = [
     "ownership_and_moves",
     "references",
     "expressions",
-    "error_handling"
+    "error_handling",
+    "ranges"
 ]
