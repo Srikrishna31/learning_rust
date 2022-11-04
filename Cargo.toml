@@ -10,5 +10,6 @@ members = [
     "references",
     "expressions",
     "error_handling",
-    "ranges"
+    "ranges",
+    "structs"
 ]
