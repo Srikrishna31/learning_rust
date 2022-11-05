@@ -55,6 +55,21 @@ fn main() {
     assert_eq!(q.pop(), Some('1'));
     assert_eq!(q.pop(), Some('='));
     assert_eq!(q.pop(), None);
+
+    q = queue::Queue{older:Vec::new(), younger: Vec::new()};
+
+    q.push('p');
+    q.push('D');
+    assert_eq!(q.pop(), Some('p'));
+    q.push('X');
+
+    let (older, younger) = q.split();
+    // q is now uninitialized.
+    assert_eq!(older, vec!['D']);
+    assert_eq!(younger, vec!['X']);
+
+    q = queue::Queue::new();
+    q.push("*");
 }
 
 ///
