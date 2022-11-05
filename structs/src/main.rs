@@ -1,4 +1,5 @@
 mod queue;
+mod polynomial;
 ///Rust has three kinds of struct types, named-field, tuple-like and unit-like, which differ in how
 /// you refer to their components: a named-field struct gives a name to each component, whereas a
 /// tuple-like struct identifies them by the order in which they appear. Unit-like structs have no
@@ -74,6 +75,19 @@ fn main() {
     let v = Vector2::UNIT.scaled_by(2.0);
     assert_eq!(v.x, 2.0);
     assert_eq!(v.y, 2.0);
+
+    let a = [0, -3, 15, 48];
+    let e = queue::find_extrema(&a);
+    assert_eq!(*e.least, -3);
+    assert_eq!(*e.greatest, 48);
+
+    use std::f64::consts::FRAC_PI_2;
+    // Approximate the sin function: sin x = x - 1/6 x3 + 1 / 120 x 5
+    // Around zero, it's pretty accurate!
+    let sine_poly = polynomial::Polynomial::new([0.0, 1.0, 0.0, -1.0/6.0, 0.0, 1.0/120.0]);
+
+    assert_eq!(sine_poly.eval(0.0), 0.0);
+    assert!((sine_poly.eval(FRAC_PI_2) - 1.).abs() < 0.005);
 }
 
 ///
