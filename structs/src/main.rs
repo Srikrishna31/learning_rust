@@ -69,7 +69,11 @@ fn main() {
     assert_eq!(younger, vec!['X']);
 
     q = queue::Queue::new();
-    q.push("*");
+    q.push('*');
+
+    let v = Vector2::UNIT.scaled_by(2.0);
+    assert_eq!(v.x, 2.0);
+    assert_eq!(v.y, 2.0);
 }
 
 ///
@@ -128,3 +132,22 @@ struct Onesuch;
 /// struct is a type with values like any other - or more precisely, a type of which there is a
 /// single value.
 struct Dummy;
+
+
+pub struct Vector2 {
+    x: f32,
+    y: f32
+}
+
+impl Vector2 {
+    /// Another feature of languages like C# and Java that Rust adopts in its type system is the
+    /// idea of values associated with a type, rather than a specific instance of that type. In Rust
+    /// these are known as associated consts. They're often used to specify commonly used values of
+    /// a type.
+    const ZERO: Vector2 = Vector2 {x: 0.0, y: 0.0};
+    const UNIT: Vector2 = Vector2 {x: 1.0, y: 1.0};
+
+    pub fn scaled_by(&self, factor: f32) -> Vector2 {
+        Vector2 { x:self.x * factor, y:self.y * factor }
+    }
+}
