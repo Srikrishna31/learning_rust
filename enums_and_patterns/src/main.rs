@@ -1,4 +1,5 @@
 mod enums;
+mod patterns;
 
 fn main() {
 
@@ -37,6 +38,10 @@ fn main() {
         left: mars_tree,
         right: enums::BinaryTree::Empty
     }));
+
+    let mut tree = enums::BinaryTree::Empty;
+    tree.add("Mercury");
+    tree.add("Venus")
 
 }
 

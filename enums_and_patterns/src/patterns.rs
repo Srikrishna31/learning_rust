@@ -1,19 +1,19 @@
-use enums;
-use enums::*;
+
+use crate::enums::*;
 /// match performs pattern matching: patterns are the parts that appear before => symbol.
 /// Expressions produce values; patterns consume values. The two use a lot of the same syntax.
 /// When a pattern contains simple identifiers like units and count, those become local variables
 /// in the code following the patterns. Whatever is present in the values is copied or moved into
 /// the new variables.
-pub fn rough_time_to_english(rt:RoughTime) -> String {
+pub(crate) fn rough_time_to_english(rt:RoughTime) -> String {
     match rt {
         RoughTime::InThePast(units, count) =>
-            format!("{count} {} ago", units.plural()),
+            format!("{} {} ago", count, units.plural()),
         RoughTime::JustNow => format!("just now"),
         RoughTime::InTheFuture(unit, 1) => format!("a {} from now", unit.singular()),
-        RoughTime::InTheFuture(TimeUnit::Hours, 1) => format("an hour from now"),
-        RoughTime::InTheFuture(count, units) =>
-            format!("{count} {} from now", units.plural()),
+        RoughTime::InTheFuture(TimeUnit::Hours, 1) => format!("an hour from now"),
+        RoughTime::InTheFuture(units, count) =>
+            format!("{} {} from now", count, units.plural()),
     }
 }
 
