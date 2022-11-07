@@ -1376,6 +1376,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e82dad04139b71a90c080c8463fe0dc7902db5192d939bd0950f074d014339e1"
 
 [[package]]
+name = "operator_overloading"
+version = "0.1.0"
+
+[[package]]
 name = "ownership_and_moves"
 version = "0.1.0"
 
