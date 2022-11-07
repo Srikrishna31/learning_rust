@@ -1,4 +1,7 @@
+mod traits;
+
 use std::io::Write;
+use crate::traits::*;
 
 /// The phrase <W:Write> means that throughout the body of this function, W stands for some type that
 /// implements the Write trait. Type parameters are usually single uppercase letters, by convention.
@@ -45,6 +48,7 @@ fn main() -> std::io::Result<()>{
     dot_product::<3>([0.2, 0.4, 0.6], [0., 0., 1.]);
     dot_product([3.,4.], [-6., 1.]);
 
+    assert_eq!('$'.is_emoji(), false);
     Ok(())
 }
 

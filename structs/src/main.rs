@@ -165,3 +165,24 @@ impl Vector2 {
         Vector2 { x:self.x * factor, y:self.y * factor }
     }
 }
+
+
+/// Generic code can use associated types:
+fn collect_into_vector<I: Iterator>(iter: I) -> Vec<I::Item> {
+    let mut results = Vec::new();
+    for value in iter {
+        results.push(value);
+    }
+    results
+}
+
+use std::fmt::Debug;
+
+/// Print out all the values produced by an iterator.
+/// Associated types are perfect for cases where each implementation has one specific related type.
+fn dump<I>(iter: I) where I: Iterator, I::Item: Debug {
+    for (index, value) in iter.enumerate() {
+        println!("{index}: {:?}", value);
+    }
+}
+
