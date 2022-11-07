@@ -12,5 +12,6 @@ members = [
     "error_handling",
     "ranges",
     "structs",
-    "enums_and_patterns"
+    "enums_and_patterns",
+    "traits_and_generics",
 ]
