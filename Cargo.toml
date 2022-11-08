@@ -14,5 +14,6 @@ members = [
     "structs",
     "enums_and_patterns",
     "traits_and_generics",
-    "operator_overloading"
+    "operator_overloading",
+    "utitlity_traits"
 ]
