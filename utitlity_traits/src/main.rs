@@ -140,3 +140,49 @@ trait DefaultExample {
     /// The default method simply returns a fresh value of Self.
     fn default() -> Self;
 }
+
+/// AsRef and AsMut
+/// When a type implements AsRef<T>, that means that you can borrow a &T from it efficiently. AsMut
+/// is the analogue for mutable references. Their definitions are as follows:
+/// AsRef is typically used to make functions more flexible in the argument types they accept.
+trait AsRef<T: ?Sized> {
+    fn as_ref(&self) -> &T;
+}
+
+trait AsMut<T: ?Sized> {
+    fn as_mut(&mut self) -> &mut T;
+}
+
+
+/// Borrow and BorrowMut
+/// The std::borrow::Borrow trait is similar to AsRef: if a type implements Borrow<T>, then its
+/// borrow method efficiently borrows a &T from it. But Borrow imposes more restrictions: a type
+/// should implement Borrow<T> only when a  &T hashes and compares the same way as the value it's
+/// borrowed from. This makes Borrow valuable in dealing with keys in hash tables and trees or when
+/// dealing with values that will be hashed or compared for some other reason.
+trait Borrow <Borrowed: ?Sized> {
+    fn borrow(&self) -> &Borrowed;
+}
+
+/// Borrow is designed to address a specific situation with generic hash tables and other associative
+/// collection types.
+struct HashMap<T, U>;
+
+impl <K, V> HashMap<K, V> where K: Eq + Hash
+{
+    /// If you can borrow an entry's key as an &Q and the resulting reference hashes and compares
+    /// just the way the key itself would, then clearly &Q ought to be an acceptable key type. Since
+    /// String implements Borrow<str> and Borrow<String>, this version of get allows you to pass
+    /// either &String or &str as a key, as needed.
+    fn get<Q: ?Sized>(&self, key: &Q) -> Option<&V>
+        where K: Borrow<Q>,
+              Q: Eq + Hash
+    {
+        None
+    }
+}
+
+/// The BorrowMut trait is analogue of Borrow for mutable references:
+trait BorrowMut<Borrowed: ?Sized> : Borrow<Borrowed> {
+    fn borrow_mut(&mut self) -> &mut Borrowed;
+}
