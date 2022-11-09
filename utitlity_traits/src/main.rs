@@ -84,6 +84,9 @@ fn main() {
         "Great Teacher Onizuka".chars().partition(|&c| c.is_uppercase());
     assert_eq!(upper, "GTO");
     assert_eq!(lower, "reat eacher nizuka");
+
+    let err = Error::FileNotFound("c:/af/bdf".as_ref());
+    println!("Disaster has struck: {}", describe(&err));
 }
 
 
@@ -145,7 +148,7 @@ trait DefaultExample {
 /// When a type implements AsRef<T>, that means that you can borrow a &T from it efficiently. AsMut
 /// is the analogue for mutable references. Their definitions are as follows:
 /// AsRef is typically used to make functions more flexible in the argument types they accept.
-trait AsRef<T: ?Sized> {
+trait AsRefExample<T: ?Sized> {
     fn as_ref(&self) -> &T;
 }
 
@@ -166,7 +169,11 @@ trait Borrow <Borrowed: ?Sized> {
 
 /// Borrow is designed to address a specific situation with generic hash tables and other associative
 /// collection types.
-struct HashMap<T, U>;
+struct HashMap<T, U>
+{
+    key: T,
+    value: U,
+}
 
 impl <K, V> HashMap<K, V> where K: Eq + Hash
 {
@@ -185,4 +192,68 @@ impl <K, V> HashMap<K, V> where K: Eq + Hash
 /// The BorrowMut trait is analogue of Borrow for mutable references:
 trait BorrowMut<Borrowed: ?Sized> : Borrow<Borrowed> {
     fn borrow_mut(&mut self) -> &mut Borrowed;
+}
+
+/// ToOwned
+/// Given a reference, the usual way to produce an owned copy of its referent is to call clone,
+/// assuming the type implements std::clone::Clone. But what if you want to clone a &str or a &[i32]?
+/// What you probably want is a String or a Vec<i32>, but Clone's definition doesn't permit that: by
+/// definition, cloning a &T must always return a value of type T, and str and [u8] are unsized; they
+/// aren't even types that a function could return.
+/// The std::borrow::ToOwned trait provides a slightly looser way to convert a reference to an owned
+/// value:
+trait ToOwned {
+    type Owned: Borrow<Self>;
+
+    /// Unlike clone, which must return exactly Self, to_owned can return anything you could borrow
+    /// a &Self from: the Owned type must implement Borrow<Self>. You can borrow a &[T] from a Vec<T>,
+    /// so [T] can implement ToOwned<Owned=Vec<T>>, as long as T implements Clone, so that we can
+    /// copy the slice's elements into the vector. Similarly, str implements ToOwned<Owned=String>,
+    /// Path implements ToOwned<Owned=PathBuf> and so on.
+    fn to_owned(&self) -> Self::Owned;
+}
+
+
+/// Borrow and ToOwned at Work: The Humble Cow
+/// In some cases when you cannot decide whether to borrow or own until the program is running, the
+/// std::borrow::Cow (for "clone on write") provides one way.
+/// A Cow<B> either borrows a shared reference to a B or owns a value from which we could borrow such
+/// a reference.
+/// You can also get a mutable reference to a Cow's value by calling its to_mut method, which returns
+/// a &mut B. If the Cow happens to be Cow::Borrowed, to_mut simply calls the reference's to_owned
+/// method to get its own copy of the referent, changes the Cow into a Cow::Owned, and borrows a
+/// mutable reference to the newly owned value. This is the "clone on write" behavior the type's name
+/// refers to.
+/// Similarly, Cow has an into_owned method that promotes the reference to an owned value, if necessary
+/// and then returns it, moving ownership to the caller and consuming the Cow in the process.
+enum CowExample<'a, B: ?Sized> where B: ToOwned
+{
+    Borrowed(&'a B),
+    Owned(<B as ToOwned>::Owned),
+}
+
+
+
+use std::path::{PathBuf, Path};
+use std::borrow::Cow;
+use std::convert::AsRef;
+
+enum Error<'a> {
+    OutOfMemory,
+    StackOverflow,
+    MachineOnFire,
+    Unfathomable,
+    FileNotFound(&'a Path),
+}
+
+fn describe(error: &Error) -> Cow<'static, str> {
+    match *error {
+        Error::OutOfMemory => "out of memory".into(),
+        Error::StackOverflow => "stack overflow".into(),
+        Error::MachineOnFire => "machine on fire".into(),
+        Error::Unfathomable => "machine bewildered".into(),
+        Error::FileNotFound(ref path) => {
+            format!("file not found: {}", path.display()).into()
+        }
+    }
 }
