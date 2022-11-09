@@ -35,6 +35,8 @@ fn main() {
         value: "lunch".to_string()
     };
 
+    drop(a);
+
     use std::fmt::Display;
 
     let boxed_displayable: &sized::RcBox<dyn Display> = &boxed_lunch;

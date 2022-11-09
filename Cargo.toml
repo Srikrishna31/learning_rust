@@ -15,5 +15,6 @@ members = [
     "enums_and_patterns",
     "traits_and_generics",
     "operator_overloading",
-    "utitlity_traits"
+    "utitlity_traits",
+    "closures"
 ]
