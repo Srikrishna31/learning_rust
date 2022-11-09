@@ -1,6 +1,7 @@
 use crate::closure::has_monster_attacks;
 
 mod closure;
+mod callbacks;
 
 fn main() {
     let cities = vec![closure::City{
@@ -58,4 +59,8 @@ fn main() {
     };
     greet.clone()("Alfred");
     greet.clone()("Bruce");
+
+    let mut router = callbacks::BasicRouter::new();
+    router.add_route("/", |_| callbacks::get_form_response());
+    router.add_route("/gcd", |req| callbacks::get_gcd_response(req));
 }
