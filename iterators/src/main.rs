@@ -32,10 +32,10 @@ fn main() {
     let mut iterator1 = path.iter();
 
     assert_eq!(iterator1.next(), Some(OsStr::new("C:")));
-    assert_eq!(iterator1.next(), Some(OsStr::new("Users")));
-    assert_eq!(iterator1.next(), Some(OsStr::new("krishna")));
-    assert_eq!(iterator1.next(), Some(OsStr::new("Downloads")));
-    assert_eq!(iterator1.next(), Some(OsStr::new("Fedora.iso")));
+    // assert_eq!(iterator1.next(), Some(OsStr::new("Users")));
+    // assert_eq!(iterator1.next(), Some(OsStr::new("krishna")));
+    // assert_eq!(iterator1.next(), Some(OsStr::new("Downloads")));
+    // assert_eq!(iterator1.next(), Some(OsStr::new("Fedora.iso")));
 
     // When a type implements IntoIterator, you can call its into_iter method yourself, just as a for
     // loop would:
@@ -65,4 +65,27 @@ fn main() {
 
     assert_eq!(iters::fibonacci().take(8).collect::<Vec<_>>(),
                     vec![1,1,2,3,5,8,13,21]);
+
+    /// Many collection types provide a drain method that takes a mutable reference to the collection
+    /// and returns an iterator that passes ownership of each element to the consumer. However, unlike
+    /// the into_iter() method, which takes the collection by value and consumes it, drain merely
+    /// borrows a mutable reference to the collection, and when the iterator is dropped, it removes
+    /// any remaining elements from the collection and leaves it empty.
+    /// On types that can be indexed by a range, like Strings, vectors and VecDeques, the drain method
+    /// takes a range of elements to remove, rather than draining the entire sequence:
+    let mut outer = "Earth".to_string();
+    let inner = String::from_iter(outer.drain(1..4));
+
+    assert_eq!(outer, "Eh");
+    assert_eq!(inner, "art");
+
+    iters::map_and_filter();
+
+    iters::filter_map();
+
+    iters::flat_map();
+
+    iters::flatten();
+
+    iters::take_while();
 }
