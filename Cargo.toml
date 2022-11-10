@@ -16,5 +16,6 @@ members = [
     "traits_and_generics",
     "operator_overloading",
     "utitlity_traits",
-    "closures"
+    "closures",
+    "iterators"
 ]
