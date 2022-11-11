@@ -1047,6 +1047,7 @@ dependencies = [
 name = "iterators"
 version = "0.1.0"
 dependencies = [
+ "enums_and_patterns",
  "num 0.3.1",
  "rand 0.8.5",
 ]

@@ -1,6 +1,11 @@
 mod iters;
 mod moreiters;
 mod consumingiters;
+mod customiters;
+
+extern crate enums_and_patterns;
+
+use enums_and_patterns::enums::BinaryTree;
 
 /// An iterator is any value that implements the std::iter::Iterator trait.
 trait IteratorExample {
@@ -144,6 +149,39 @@ fn main() {
     consumingiters::partition();
 
     consumingiters::for_each_try_for_each();
+
+
+    let mut pi = 0.0;
+    let mut numerator = 1.0;
+
+    for k in (customiters::I32Range{start: 0, end: 14}) {
+        pi += numerator / (2*k + 1) as f64;
+        numerator /= -3.0;
+    }
+    pi *= f64::sqrt(12.0);
+
+    assert_eq!(pi as f32, std::f32::consts::PI);
+
+    let mut tree = BinaryTree::Empty;
+    tree.add("jaeger");
+    tree.add("robot");
+    tree.add("droid");
+    tree.add("mecha");
+
+    let mut tree_ext = customiters::BinaryTreeExt(tree);
+    let mut v = Vec::new();
+    for kind in &tree_ext {
+        v.push(*kind);
+    }
+
+    assert_eq!(v, ["droid", "jaeger", "mecha", "robot"]);
+
+    assert_eq!(tree_ext.iter()
+        .map(|name| format!("mega-{name}"))
+        .collect::<Vec<_>>(),
+
+        vec!["mega-droid", "mega-jaeger", "mega-mecha", "mega-robot"]
+    );
 }
 
 

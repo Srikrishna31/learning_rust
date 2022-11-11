@@ -1,5 +1,7 @@
-mod enums;
-mod patterns;
+mod lib;
+
+extern crate enums;
+
 
 fn main() {
 
