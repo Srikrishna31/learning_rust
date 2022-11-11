@@ -1,4 +1,5 @@
 mod iters;
+mod moreiters;
 
 /// An iterator is any value that implements the std::iter::Iterator trait.
 trait IteratorExample {
@@ -88,4 +89,38 @@ fn main() {
     iters::flatten();
 
     iters::take_while();
+
+    iters::skip_while();
+
+    let mut chars = "226153980,1766319049".chars().peekable();
+    assert_eq!(iters::parse_number(&mut chars), 226153980);
+    assert_eq!(chars.next(), Some(','));
+    assert_eq!(iters::parse_number(&mut chars), 1766319049);
+    assert_eq!(chars.next(), None);
+
+    let mut flaky = iters::Flaky(true);
+    assert_eq!(flaky.next(), Some("totally the last item"));
+    assert_eq!(flaky.next(), None);
+    assert_eq!(flaky.next(), Some("totally the last item"));
+
+    let mut not_flaky = iters::Flaky(true).fuse();
+    assert_eq!(not_flaky.next(), Some("totally the last item"));
+    assert_eq!(not_flaky.next(), None);
+    assert_eq!(not_flaky.next(), None);
+
+    moreiters::rev_iterator();
+
+    moreiters::inspect();
+
+    moreiters::chain();
+
+    moreiters::zip();
+
+    moreiters::by_ref();
+
+    moreiters::clone();
+
+    moreiters::cycle();
 }
+
+

@@ -183,3 +183,82 @@ pub(crate) fn take_while() -> () {
     }
 }
 
+/// skip and skip_while
+/// These are the complement of take and take_while: they drop a certain number of items from the
+/// beginning of an iteration, or drop items until a closure finds one acceptable, and then pass the
+/// remaining items through unchanged.
+///
+///     fn skip(self, n : usize) -> impl Iterator<Item=Self::Item>
+///         where Self: Sized;
+///
+///     fn skip_while(self, predicate: P) -> impl Iterator<Item=Self::Item>
+///         where Self: Sized, P: FnMut(&Self::Item) -> bool;
+pub(crate) fn skip_while() -> () {
+    let message = "To: jimb\r\n\
+                         From: superego <editor@oreilly.com>\r\n\
+                         \r\n\
+                         Did you get any writing done today?\r\n\
+                         When will you stop wasting time plotting fractals?\r\n";
+
+    for body in message.lines()
+        .skip_while(|l|!l.is_empty())
+        .skip(1) {
+        println!("{}", body);
+    }
+
+}
+
+use std::iter::Peekable;
+
+/// peekable
+/// A peekable iterator lets you peek at the next item that will be produced without actually consuming
+/// it.
+///
+///     fn peekable(self) -> std::iter::Peekable<Self>
+///         where Self: Sized;
+///
+/// Here, Peekable<Self> is a struct that implements Iterator<Item=Self::Item>, and Self is the type
+/// of the underlying iterator.
+/// A Peekable iterator has an additional method peek that returns an Option<&Item>: None if the
+/// underlying iterator is done and otherwise Some(r), where r is a shared reference to the next item.
+/// Calling peek tries to draw the next item from the underlying iterator, and if there is one, caches
+/// it until the next call to next. All the other Iterator methods on Peekable know about this cache:
+/// for example, iter.last() on a peekable iterator iter knows to check the cache after exhausing the
+/// underlying iterator.
+pub(crate) fn parse_number<I>(tokens: &mut Peekable<I>) -> u32
+    where I : Iterator<Item=char>
+{
+    let mut n = 0;
+    loop {
+        match tokens.peek() {
+            Some(r) if r.is_digit(10) => {
+                n = n*10 + r.to_digit(10).unwrap();
+            }
+            _ => return n
+        }
+        tokens.next();
+    }
+}
+
+
+pub(crate) struct Flaky(pub(crate) bool);
+
+/// fuse
+/// The fuse adapter takes any iterator and produces one that will definitely continue to return None
+/// once it has done so the first time.
+/// The fuse adapter is probably most useful in generic code that needs to work with iterators of
+/// uncertain origin. Rather than hoping that every iterator you'll have to deal with will be
+/// well-behaved, you can use fuse to make sure.
+impl Iterator for Flaky {
+    type Item = &'static str;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.0 {
+            self.0 = false;
+            Some("totally the last item")
+        } else {
+            self.0 = true;
+            None
+        }
+    }
+}
