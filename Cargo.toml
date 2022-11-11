@@ -17,5 +17,6 @@ members = [
     "operator_overloading",
     "utitlity_traits",
     "closures",
-    "iterators"
+    "iterators",
+    "collections"
 ]
