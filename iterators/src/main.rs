@@ -1,5 +1,6 @@
 mod iters;
 mod moreiters;
+mod consumingiters;
 
 /// An iterator is any value that implements the std::iter::Iterator trait.
 trait IteratorExample {
@@ -121,6 +122,30 @@ fn main() {
     moreiters::clone();
 
     moreiters::cycle();
+
+    consumingiters::count_sum_product();
+
+    consumingiters::min_max();
+
+    consumingiters::min_max_by();
+
+    consumingiters::min_max_by_key();
+
+    consumingiters::eq_lt();
+
+    consumingiters::position_rposition();
+
+    consumingiters::fold_rfold();
+
+    consumingiters::nth_nthback_last();
+
+    consumingiters::extend();
+
+    consumingiters::partition();
+
+    consumingiters::for_each_try_for_each();
 }
+
+
 
 
