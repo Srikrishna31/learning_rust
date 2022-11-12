@@ -24,13 +24,13 @@ pub(crate) enum HttpStatus {
 /// As with structs, the compiler will implement features like the == operator for you, but you
 /// have to ask.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub(crate) enum TimeUnit {
+pub enum TimeUnit {
     Seconds, Minutes, Hours, Days, Months, Years,
 }
 
 /// Enums can have methods, just like structs
  impl TimeUnit {
-    pub(crate) fn plural(self) -> &'static str {
+    pub fn plural(self) -> &'static str {
         match self {
             TimeUnit::Seconds => "seconds",
             TimeUnit::Minutes => "minutes",
@@ -41,7 +41,7 @@ pub(crate) enum TimeUnit {
         }
     }
 
-    pub(crate) fn singular(self) -> &'static str {
+    pub fn singular(self) -> &'static str {
         self.plural().trim_end_matches('s')
     }
 }
@@ -51,7 +51,7 @@ pub(crate) enum TimeUnit {
 /// tuple variants. Like tuple structs, these constructors are functions that create new
 /// RoughTime values
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub(crate) enum RoughTime {
+pub enum RoughTime {
     InThePast(TimeUnit, u32),
     JustNow,
     InTheFuture(TimeUnit, u32),

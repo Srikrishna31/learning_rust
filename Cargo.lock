@@ -490,6 +490,9 @@ dependencies = [
 [[package]]
 name = "collections"
 version = "0.1.0"
+dependencies = [
+ "enums_and_patterns",
+]
 
 [[package]]
 name = "color_quant"
