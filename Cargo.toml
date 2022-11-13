@@ -18,5 +18,6 @@ members = [
     "utitlity_traits",
     "closures",
     "iterators",
-    "collections"
+    "collections",
+    "strings_and_text"
 ]

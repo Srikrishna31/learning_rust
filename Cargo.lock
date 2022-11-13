@@ -1972,6 +1972,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "strings_and_text"
+version = "0.1.0"
+
+[[package]]
 name = "structs"
 version = "0.1.0"
 
