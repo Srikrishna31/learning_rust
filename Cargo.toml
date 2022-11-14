@@ -20,5 +20,6 @@ members = [
     "iterators",
     "collections",
     "strings_and_text",
-    "input_and_output"
+    "input_and_output",
+    "concurrency"
 ]
