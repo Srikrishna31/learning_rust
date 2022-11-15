@@ -526,6 +526,9 @@ dependencies = [
 [[package]]
 name = "concurrency"
 version = "0.1.0"
+dependencies = [
+ "byteorder",
+]
 
 [[package]]
 name = "const-random"
