@@ -1,5 +1,6 @@
 mod channels;
 mod index;
+mod shared_state;
 
 /// There are a lot of idioms for Concurrent programming:
 /// * A background thread that has a single job and periodically wakes up to do it.
