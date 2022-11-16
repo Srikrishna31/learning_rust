@@ -22,5 +22,6 @@ members = [
     "strings_and_text",
     "input_and_output",
     "concurrency",
-    "macros"
+    "macros",
+    "unsafe_code"
 ]
