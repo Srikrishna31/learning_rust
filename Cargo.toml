@@ -21,5 +21,6 @@ members = [
     "collections",
     "strings_and_text",
     "input_and_output",
-    "concurrency"
+    "concurrency",
+    "macros"
 ]
