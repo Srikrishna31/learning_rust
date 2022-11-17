@@ -57,3 +57,44 @@ fn option_to_raw<T>(opt: Option<&T>) -> *const T {
         Some(r) => r as *const T
     }
 }
+
+use std::marker::PhantomData;
+use std::mem::align_of;
+
+/// A `&T` and a `bool`, wrapped up in a single word. The type `T` must require at least two-byte al
+/// alignment.
+///
+/// This sort of technique is used regularly in garbage collectors and virtual machines, where certain
+/// types - say, the type representing the object - are so numerous that adding even a single word to
+/// each value would drastically increase memory use.
+pub struct RefWithFlag<'a, T> {
+    ptr_and_bit: usize,
+    /// The PhantomData is necessary for Rust to know how to treat lifetimes in code that use RefWithFlag.
+    behaves_like: PhantomData<&'a T> // occupies no space
+}
+
+impl<'a, T: 'a> RefWithFlag<'a, T> {
+    pub fn new(ptr: &'a T, flag: bool) -> RefWithFlag<T> {
+        assert!(align_of::<T>() %2 == 0);
+        RefWithFlag {
+            ptr_and_bit: ptr as *const T as usize | flag as usize,
+            behaves_like: PhantomData
+        }
+    }
+
+    /// Borrowing a raw pointer's referent gives you a reference with an unbounded lifetime: Rust will
+    /// accord the reference whatever lifetime would make the code around it check, if there is one.
+    /// In this case, since get_ref's return type is &'a T, Rust sees that the reference's lifetime is
+    /// the same as RefWithFlag's lifetime parameter 'a, which is just what we want: that's the lifetime
+    /// of the reference we started with.
+    pub fn get_ref(&self) -> &'a T {
+        unsafe {
+            let ptr = (self.ptr_and_bit & !1) as *const T;
+            &*ptr
+        }
+    }
+
+    pub fn get_flag(&self) -> bool {
+        self.ptr_and_bit & 1 != 0
+    }
+}
