@@ -23,5 +23,6 @@ members = [
     "input_and_output",
     "concurrency",
     "macros",
-    "unsafe_code"
+    "unsafe_code",
+    "foreign_functions"
 ]
