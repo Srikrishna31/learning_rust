@@ -24,5 +24,6 @@ members = [
     "concurrency",
     "macros",
     "unsafe_code",
-    "foreign_functions"
+    "foreign_functions",
+    "asynchronous_programming"
 ]
