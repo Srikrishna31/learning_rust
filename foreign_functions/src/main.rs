@@ -1,5 +1,6 @@
 mod libgit2;
 mod raw;
+mod git;
 
 use std::ffi::{CString, CStr};
 use std::os::raw::c_char;
