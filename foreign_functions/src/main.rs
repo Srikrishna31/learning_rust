@@ -1,10 +1,8 @@
 mod libgit2;
-mod raw;
 mod git;
 
 use std::ffi::{CString, CStr};
 use std::os::raw::c_char;
-use std::{mem, ptr};
 
 extern {
     /// You can also declare global variables in extern blocks. POSIX systems have a global variable
@@ -33,29 +31,16 @@ fn main() {
     }
 
     let path = std::env::args().skip(1).next().expect("usage: git-toy PATH");
-    let path = CString::new(path).expect("path contains null characters");
 
-    unsafe {
-        raw::check("Initializing library", raw::git_libgit2_init());
+    let repo = git::Repository::open(&path).expect("opening repository");
 
-        let mut repo = ptr::null_mut();
-        raw::check("opening repository", raw::git_repository_open(&mut repo, path.as_ptr()));
+    let commit_oid = repo.reference_name_to_id("HEAD").expect("looking up 'HEAD' reference");
 
-        let c_name = b"HEAD\0".as_ptr() as *const c_char;
-        let oid = {
-            let mut oid = mem::MaybeUninit::uninit();
-            raw::check("looking up HEAD", raw::git_reference_name_to_id(oid.as_mut_ptr(), repo, c_name));
-            oid.assume_init()
-        };
+    let commit = repo.find_commit(&commit_oid).expect("looking up commit");
 
-        let mut commit = ptr::null_mut();
-        raw::check("looking up commit", raw::git_commit_lookup(&mut commit, repo, &oid));
+    let author = commit.author();
 
-        raw::show_commit(commit);
+    println!("{} <{}>\n", author.name().unwrap_or("(none)"), author.email().unwrap_or("none"));
 
-        raw::git_commit_free(commit);
-        raw::git_repository_free(repo);
-
-        raw::check("shutting down library", raw::git_libgit2_shutdown());
-    }
+    println!("{}", commit.message().unwrap_or("(none)"));
 }
