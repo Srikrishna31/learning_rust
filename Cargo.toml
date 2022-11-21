@@ -25,5 +25,6 @@ members = [
     "macros",
     "unsafe_code",
     "foreign_functions",
-    "asynchronous_programming"
+    "asynchronous_programming",
+    "async-chat"
 ]

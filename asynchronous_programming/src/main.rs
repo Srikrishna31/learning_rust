@@ -106,7 +106,7 @@ pub async fn many_requests(requests: Vec<(String, u16, String)>) -> Vec<std::io:
 
 /// Using a single surf::Client to make all our requests lets us reuse HTTP connections if several of
 /// them are directed at the same server. And no async block is needed, since recv_string is an
-/// asynchronous method that returns a Send + 'static future, we can pass its future directly to spawn.
+/// asynchronous method that returns a Send + 'static future, we can pass its future directly to `spawn`.
 pub async fn many_requests_surf(urls: &[String]) -> Vec<Result<String, surf::Error>> {
     let client = surf::Client::new();
 

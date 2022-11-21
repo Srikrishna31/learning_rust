@@ -376,6 +376,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-chat"
+version = "0.1.0"
+dependencies = [
+ "async-std",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "async-executor"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
