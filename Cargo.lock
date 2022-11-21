@@ -511,7 +511,10 @@ name = "asynchronous_programming"
 version = "0.1.0"
 dependencies = [
  "async-std",
+ "crossbeam",
+ "futures-lite",
  "surf",
+ "waker-fn",
 ]
 
 [[package]]

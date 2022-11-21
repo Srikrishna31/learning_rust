@@ -1,6 +1,28 @@
+mod custom_future;
+
 use async_std::io::prelude::*;
 use async_std::{net, task};
 
+/// Rust's approach to supporting asynchronous operations is to indroduce a trait `std::future::Future`:
+///
+///     trait FutureEx {
+///         type Output;
+///
+///         fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;
+///     }
+///
+/// A `Future` represents an operation that you can test for completion. A future's `poll` method
+/// never waits for the operation to finish: it always returns immediately. If the operation is complete
+/// `poll` returns `Poll::Ready(output)`, where `output` is its final result. Otherwise it returns
+/// `Pending`. If and when the future is worth polling again, it promises to let us know by invoking
+/// a *waker*, a callback function supplied in the `Context`. We call this the "pinata model" of
+/// asynchronous programming: the only thing you can do with a future is what it with a `poll` until
+/// a value falls out.
+
+enum Poll<T> {
+    Ready(T),
+    Pending,
+}
 /// Unlike an ordinary function, when you call an asynchronous function, it returns immediately, before
 /// the body begins execution at all. Obviously, the call's final return value hasn't been computed
 /// yet; what you get is a future of its final value.
