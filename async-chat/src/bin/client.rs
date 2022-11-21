@@ -127,7 +127,7 @@ fn main() -> ChatResult<()> {
 
     task::block_on(async {
         let socket = net::TcpStream::connect(address).await?;
-        socket.set_nodely(true)?;
+        socket.set_nodelay(true)?;
 
         let to_server = send_commands(socket.clone());
         let from_server = handle_replies(socket);
