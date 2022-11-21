@@ -89,8 +89,6 @@ async fn cheapo_request(host: &str, port: u16, path: &str) -> std::io::Result<St
 /// *task-local storage;*
 pub async fn many_requests(requests: Vec<(String, u16, String)>) -> Vec<std::io::Result<String>> {
 
-    use async_std::task;
-
     let mut handles = vec![];
     for (host, port, path) in requests {
         handles.push(task::spawn( async move {
@@ -106,12 +104,28 @@ pub async fn many_requests(requests: Vec<(String, u16, String)>) -> Vec<std::io:
     results
 }
 
+/// Using a single surf::Client to make all our requests lets us reuse HTTP connections if several of
+/// them are directed at the same server. And no async block is needed, since recv_string is an
+/// asynchronous method that returns a Send + 'static future, we can pass its future directly to spawn.
+pub async fn many_requests_surf(urls: &[String]) -> Vec<Result<String, surf::Error>> {
+    let client = surf::Client::new();
 
+    let mut handles = vec![];
+    for url in urls {
+        let request = client.get(&url).recv_string();
+        handles.push(async_std::task::spawn(request));
+    }
+
+    let mut results = vec![];
+    for handle in handles {
+        results.push(handle.await);
+    }
+
+    results
+}
 
 fn main() -> std::io::Result<()> {
     println!("Hello, world!");
-
-    use async_std::task;
 
     let response = task::block_on(cheapo_request("example.com", 80, "/"))?;
     println!("{response}");
@@ -122,7 +136,10 @@ fn main() -> std::io::Result<()> {
         ("en.wikipedia.org".to_string(), 80, "/".to_string()),
     ];
 
-    let results = async_std::task::block_on(many_requests(requests));
+    let plain_reqs = &["http://example.com".to_string(),
+                              "https:/www.red-bean.com".to_string(),
+                              "https://en.wikipedia.org/wiki/Main_Page".to_string()];
+    let results = async_std::task::block_on(many_requests_surf(plain_reqs));
 
     println!("{}", "*".repeat(50));
     for result in results {
