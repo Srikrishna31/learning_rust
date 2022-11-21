@@ -58,13 +58,44 @@ async fn cheapo_request(host: &str, port: u16, path: &str) -> std::io::Result<St
 /// * `async_std::task::spawn_local(f)` takes the future f and adds it to the pool to be polled when
 /// the current thread calls `block_on`. `spawn_local` returns its own `async_std::task::JoinHandle`
 /// type, itself a future that you can await to retrieve `f`'s final value.
+///
+/// # Async Blocks
+/// In addition to asynchronous functions, Rust also supports asynchronous blocks. Whereas ordinary
+/// block statement returns the value of its last expression, an async block returns a future of the
+/// value of its last expression. You can use await expression within asn async block.
+/// An async block looks like an ordinary block statement, preceded by the async key word.
+///
+/// If you apply the ? operator to an error in an async block, it just returns from the block, not
+/// from the surrounding function. Similarly, return expressions return from the async block, not the
+/// enclosing function.
+///
+/// If an async block refers to variables defined in the surrounding code, its future captures their
+/// values, just as a closure would. And just like move closures, you can start the block with async
+/// move to take ownership of the captured values, rather than just holding references to them.
+///
+/// # Spawning Async Tasks on a Thread Pool
+/// Like `spawn_local`, `spawn` returns a `JoinHandle` value you can await to get the future's final
+/// value. But unlike `spawn_local`, the future doesn't have to wait for you to call `block_on` before
+/// it gets polled. As soon as one of the threads from the pool is fee, it will try polling it.
+///
+/// An async call may begin execution on one thread, block an `await` expression, and get resumed in
+/// a different thread. So while it's a reasonable simplification to view an async function call as
+/// a single, connected execution of code, the call may actually be carried out by many different
+/// threads.
+///
+/// If you are using thread-local storage, it may be surprising to see the data you put there before
+/// an `await` expression replaced by something entirely different afterward, because your task is now
+/// being polled by a different thread from the pool. If this is a problem, you should instead use
+/// *task-local storage;*
 pub async fn many_requests(requests: Vec<(String, u16, String)>) -> Vec<std::io::Result<String>> {
 
     use async_std::task;
 
     let mut handles = vec![];
     for (host, port, path) in requests {
-        handles.push(task::spawn_local(cheapo_owning_request(host, port, path)));
+        handles.push(task::spawn( async move {
+            cheapo_request(&host, port, &path).await
+        }));
     }
 
     let mut results = vec![];
@@ -75,9 +106,7 @@ pub async fn many_requests(requests: Vec<(String, u16, String)>) -> Vec<std::io:
     results
 }
 
-async fn cheapo_owning_request(host: String, port: u16, path: String) -> std::io::Result<String> {
-    cheapo_request(&host, port, &path).await
-}
+
 
 fn main() -> std::io::Result<()> {
     println!("Hello, world!");
