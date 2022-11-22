@@ -155,3 +155,24 @@ async fn fetch_string(address: &str) -> io::Result<String> {
 /// it into the heap, and returns a Pin<Box<T>>.
 /// * `Pin<Box<T>>` implements `From<Box<T>>`, so `Pin::from(boxed)` takes ownership of `boxed` and
 /// gives you back a pinned box pointing at the same T on the heap.
+///
+/// Every way to obtain a pinned pointer to these futures entails giving up ownership of the future,
+/// and there is no way to get it back out. The pinned pointer itself can be moved in any way you
+/// please, but moving a pointer doesn't move its referent. So possession of a pinned pointer to a
+/// future serves as proof that you have permanently given up the ability to move that future. This
+/// is all we need to know that it can be polled safely.
+///
+/// # The Unpin Trait
+/// It is a marker trait, for which `Pin` imposes no restrictions whatsoever. You can make a pinned
+/// pointer from an ordinary pointer with `Pin::new` and get the pointer back out with `Pin::into_inner`.
+/// The `Pin` itself passes along the pointer's own `Deref` and `DerefMut` implementations.
+fn unpin_example() {
+    let mut string = "Pinned?".to_string();
+    let mut pinned: Pin<&mut String> = Pin::new(&mut string);
+
+    pinned.push_str(" Not");
+    Pin::into_inner(pinned).push_str(" so much.");
+
+    let new_home = string;
+    assert_eq!(new_home, "Pinned? Not so much.");
+}
